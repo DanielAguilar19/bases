@@ -16,5 +16,12 @@ and EMPLEADO.nombre_Empleado!='sebastian'
 
 --LISTAR TODOS LOS ID DE LOS VEHICULOS Y EL ID Y EL NOMBRE DEL EMPLEADO QUE ATENDIO, DE TODOS LOS VEHICULOS
 --QUE FUERON ATENDIDOS POR EMPLEADOS CON EL MISMO PUESTO QUE JUAN
-
---select vehiculoID, empleadoID from ORDEN_SERVICIO,CARGO,EMPLEADO 
+SELECT V.vehiculoID as carro,
+e.nombre_Empleado as empleado,
+os.empleadoID as orden,
+c.cargoID as puesto
+from ORDEN_SERVICIO as os
+inner join VEHICULO as v on os.vehiculoID=v.vehiculoID
+inner join EMPLEADO as e on os.empleadoID=e.empleadoID
+inner join CARGO as c on e.cargoID=c.cargoID
+where e.cargoID=(select cargoID from EMPLEADO where nombre_Empleado='JUAN')
