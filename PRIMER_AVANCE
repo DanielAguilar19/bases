@@ -1,0 +1,196 @@
+-- Creación de la base de datos 'Practica'
+CREATE DATABASE Practica;
+GO
+
+-- Usar la base de datos 'Practica'
+USE Practica;
+
+-- Tabla Proveedor
+CREATE TABLE Proveedor (
+    ProveedorID INT IDENTITY (1,1) NOT NULL,
+    NombreProveedor NVARCHAR(100) NOT NULL,
+    Contacto NVARCHAR(50) NOT NULL,
+    Telefono NVARCHAR(15) NOT NULL,
+    Direccion NVARCHAR(150),
+    CONSTRAINT PK_PROVEEDOR PRIMARY KEY (ProveedorID)
+);
+
+-- Tabla Producto
+CREATE TABLE Producto (
+    ProductoID INT IDENTITY (1,1) NOT NULL,
+    NombreProducto NVARCHAR(50),
+    Descripcion NVARCHAR(255),
+    PrecioVenta DECIMAL(10, 2) NOT NULL,
+    PrecioCompra DECIMAL(10, 2) NOT NULL,
+    StockActual INT,
+    StockMinimo INT,
+    ProveedorID INT NOT NULL,
+    CONSTRAINT PK_PRODUCTO PRIMARY KEY (ProductoID),
+    CONSTRAINT PRODUCTO_PROVEEDORFK FOREIGN KEY (ProveedorID) REFERENCES Proveedor(ProveedorID)
+);
+
+-- Tabla Cliente
+CREATE TABLE Cliente (
+    ClienteID INT NOT NULL,
+    NombreCliente NVARCHAR(100) NOT NULL,
+    Direccion NVARCHAR(150),
+    Telefono NVARCHAR(15),
+    Email NVARCHAR(50) NOT NULL,
+    CONSTRAINT PK_CLIENTE PRIMARY KEY (ClienteID)
+);
+
+-- Tabla Venta
+CREATE TABLE Venta (
+    VentaID INT IDENTITY (1,1) NOT NULL,
+    FechaVenta DATE NOT NULL,
+    TotalVenta DECIMAL(10, 2),
+    ClienteID INT NOT NULL,
+    CONSTRAINT PK_VENTA PRIMARY KEY (VentaID),
+    CONSTRAINT VENTA_CLIENTEFK FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla DetalleVenta
+CREATE TABLE DetalleVenta (
+    DetalleVentaID INT IDENTITY (1,1) NOT NULL,
+    VentaID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10, 2) NOT NULL,
+    Subtotal DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT PK_DETALLEVENTA PRIMARY KEY (DetalleVentaID),
+    CONSTRAINT DETALLEVENTA_VENTAFK FOREIGN KEY (VentaID) REFERENCES Venta(VentaID),
+    CONSTRAINT DETALLEVENTA_PRODUCTOFK FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+-- Tabla Compra
+CREATE TABLE Compra (
+    CompraID INT IDENTITY (1,1) NOT NULL,
+    FechaCompra DATE NOT NULL,
+    TotalCompra DECIMAL(10, 2) NOT NULL,
+    ProveedorID INT NOT NULL,
+    CONSTRAINT PK_COMPRA PRIMARY KEY (CompraID),
+    CONSTRAINT COMPRA_PROVEEDORFK FOREIGN KEY (ProveedorID) REFERENCES Proveedor(ProveedorID)
+);
+
+-- Tabla DetalleCompra
+CREATE TABLE DetalleCompra (
+    DetalleCompraID INT IDENTITY (1,1) PRIMARY KEY,
+    CompraID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10, 2) NOT NULL,
+    Subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (CompraID) REFERENCES Compra(CompraID),
+    FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+-- Tabla Oferta
+CREATE TABLE Oferta (
+    OfertaID INT IDENTITY (1,1) NOT NULL,
+    ProductoID INT NOT NULL,
+    Descuento DECIMAL(5, 2) NOT NULL,
+    Fecha DATE NOT NULL,
+    CONSTRAINT PK_OFERTA PRIMARY KEY (OfertaID),
+    CONSTRAINT OFERTA_PRODUCTOFK FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+-- Tabla Departamento
+CREATE TABLE Departamento (
+    DepartamentoID INT IDENTITY NOT NULL,
+    NombreDepartamento NVARCHAR(50) NOT NULL,
+    CONSTRAINT PK_DEPARTAMENTO PRIMARY KEY (DepartamentoID)
+);
+
+-- Tabla ProductoDepartamento
+CREATE TABLE ProductoDepartamento (
+    ProductoID INT NOT NULL,
+    DepartamentoID INT NOT NULL,
+    PRIMARY KEY (ProductoID, DepartamentoID),
+    FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID),
+    FOREIGN KEY (DepartamentoID) REFERENCES Departamento(DepartamentoID)
+);
+
+-- Tabla ListaDeseos
+CREATE TABLE ListaDeseos (
+    ListaDeseosID INT IDENTITY (1,1) PRIMARY KEY,
+    ClienteID INT NOT NULL,
+    Deseo NVARCHAR(255) NOT NULL,
+    FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla ListaPedidos
+CREATE TABLE ListaPedidos (
+    ListaPedidosID INT IDENTITY (1,1) PRIMARY KEY,
+    ClienteID INT NOT NULL,
+    Pedido NVARCHAR(255) NOT NULL,
+    FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla Empleo
+CREATE TABLE Empleo (
+    EmpleoID INT PRIMARY KEY,
+    Titulo VARCHAR(50),
+    Descripcion NVARCHAR(255),
+    Requisitos TEXT
+);
+
+-- Tabla PromocionMayorista
+CREATE TABLE PromocionMayorista (
+    PromocionMayoristaID INT PRIMARY KEY,
+    DescuentoMayorista DECIMAL(5, 2),
+    CantidadMinima INT
+);
+
+-- Tabla SolicitudEmpleo
+CREATE TABLE SolicitudEmpleo (
+    SolicitudID INT PRIMARY KEY,
+    EmpleoID INT,
+    ClienteID INT,
+    Mensaje TEXT,
+    EstadoSolicitud NVARCHAR(20),
+    FOREIGN KEY (EmpleoID) REFERENCES Empleo(EmpleoID),
+    FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla CompraMayorista
+CREATE TABLE CompraMayorista (
+    CompraMayoristaID INT PRIMARY KEY,
+    ClienteID INT,
+    FechaCompra DATE,
+    TotalCompra DECIMAL(10, 2),
+    FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla DetalleCompraMayorista
+CREATE TABLE DetalleCompraMayorista (
+    DetalleCompraMayoristaID INT PRIMARY KEY,
+    CompraMayoristaID INT,
+    ProductoID INT,
+    Cantidad INT,
+    PrecioUnitario DECIMAL(10, 2),
+    Subtotal DECIMAL(10, 2),
+    FOREIGN KEY (CompraMayoristaID) REFERENCES CompraMayorista(CompraMayoristaID),
+    FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+-- Tabla Cotizacion
+CREATE TABLE Cotizacion (
+    CotizacionID INT IDENTITY (1,1) NOT NULL,
+    ClienteID INT NOT NULL,
+    FechaCotizacion DATE NOT NULL,
+    TotalCotizacion DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT PK_COTIZACION PRIMARY KEY (CotizacionID),
+    CONSTRAINT COTIZACION_CLIENTEFK FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+);
+
+-- Tabla DetalleCotizacion
+CREATE TABLE DetalleCotizacion (
+    DetalleCotizacionID INT IDENTITY (1,1) PRIMARY KEY,
+    CotizacionID INT,
+    ProductoID INT,
+    Cantidad INT,
+    PrecioUnitario DECIMAL(10, 2),
+    Subtotal DECIMAL(10, 2),
+    FOREIGN KEY (CotizacionID) REFERENCES Cotizacion(CotizacionID),
+    FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
